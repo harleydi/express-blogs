@@ -1,48 +1,49 @@
 const express = require('express');
+const { v4: uuid } = require("uuid")
 const app = require('../app');
 const router = express.Router()
 
 const blogs = [
     {
-      id: 1,
-      title: "Blog 1",
-      description: "Description of Blog 1",
-      author: "John Doe",
-      createdAt: '2023-05-22T19:16:00.821Z',
-      lastModified:'2023-05-22T19:16:00.821Z'
-    },
-    {
-      id: 2,
-      title: "Blog 2",
-      description: "Description of Blog 2",
-      author: "Jane Smith",
-      createdAt:'2023-05-22T19:16:00.821Z',
-      lastModified: '2023-05-22T19:16:00.821Z'
-    },
-    {
-      id: 3,
-      title: "Blog 3",
-      description: "Description of Blog 3",
-      author: "Alex Johnson",
-      createdAt: '2023-05-22T19:16:00.821Z',
-      lastModified: '2023-05-22T19:16:00.821Z'
-    },
-    {
-      id: 4,
-      title: "Blog 4",
-      description: "Description of Blog 4",
-      author: "Emily Davis",
-      createdAt: '2023-05-22T19:16:00.821Z',
-      lastModified: '2023-05-22T19:16:00.821Z'
-    },
-    {
-      id: 5,
-      title: "Blog 5",
-      description: "Description of Blog 5",
-      author: "Michael Brown",
-      createdAt: '2023-05-22T19:16:00.821Z',
-      lastModified: '2023-05-22T19:16:00.821Z'
-    }
+        id: "12627a33-a9fa-4ed6-86cf-65a5690a56ff",
+        title: 'Introduction to JavaScript',
+        description: 'Learn the basics of JavaScript programming language.',
+        author: 'Michael Johnson',
+        createdAt: '2023-05-22T19:16:00.821Z',
+        lastModified: '2023-05-22T19:16:00.821Z'
+      },
+      {
+        id: uuid(),
+        title: 'Mastering React Framework',
+        description: 'Become proficient in building web applications using React.',
+        author: 'Jane Smith',
+        createdAt: '2023-05-22T19:16:00.821Z',
+        lastModified: '2023-05-22T19:16:00.821Z'
+      },
+      {
+        id: uuid(),
+        title: 'Deep Dive into Node.js',
+        description: 'Explore the advanced concepts of Node.js and server-side development.',
+        author: 'Michael Johnson',
+        createdAt: '2023-05-22T19:16:00.821Z',
+        lastModified: '2023-05-22T19:16:00.821Z'
+      },
+      {
+        id: uuid(),
+        title: 'CSS Tricks for Web Designers',
+        description: 'Discover useful CSS techniques to enhance your web designs.',
+        author: 'Emily Davis',
+        createdAt: '2023-05-22T19:16:00.821Z',
+        lastModified: '2023-05-22T19:16:00.821Z'
+      },
+      {
+        id: uuid(),
+        title: 'Effective Database Management',
+        description: 'Learn best practices for managing databases and optimizing performance.',
+        author: 'Robert Johnson',
+        createdAt: '2023-05-22T19:16:00.821Z',
+        lastModified: '2023-05-22T19:16:00.821Z'
+      } 
   ];
 
 
@@ -62,7 +63,9 @@ router.get('/all', (req, res) => {
 router.get('/blog/:id', (req, res) => {
     const id = req.params.id
     const findBlog = blogs.findIndex((blog) => blog.id.toString() === id)
-
+    if (findBlog === -1) {
+        return res.status(400).json({ message: "Blog not found" })
+    }
     const blog = blogs[findBlog]
 
     res.status(200).json({ data: blog })
@@ -101,37 +104,44 @@ router.delete('/delete/:id', (req, res) => {
 
 router.post('/new', (req, res) => {
     console.log(blogs.length)
-    let id = blogs.length + 1
+    let id = uuid()
+    const errArr = []
 
     const newBlog = {
       id: id,
       title: req.body.title,
       description: req.body.description,
       author: req.body.author,
-      createdAt: new Date(),
-      lastModified: new Date()
+      createdAt: new Date().toISOString(),
+      lastModified: new Date().toISOString()
     }
-
+    if (errArr > 0) {
+        return res.status(400).json({ success: false, messag: errArr })
+    }
     blogs.push(newBlog)
     res.status(200).json({ message: "Blog created" })
 })
 
+// update blog
+
 router.put('/update/:id', (req, res) => {
-    const id = req.params.id
-    const findById = blogs.findIndex((blog) => blog.id.toString() === id)
-
-    const blog = blogs[findById] 
-    console.log(blog)
-    // const updatedBlog = { ...blog }
-
-    for(let key in req.body) {
-        if (req.body[key]) {
-            blog[key] = req.body[key]
-        }
-    }
-
+    const { title, description, author } = req.body
     
+    const id = req.params.id
 
+    const getBlogId = blogs.findIndex((blog) => blog.id === id)
+
+    const blog = blogs[getBlogId]
+    
+    if (getBlogId === -1) {
+        const auth = author ? blog.author = author : blog.author
+        const desc = description ? blog.description = description : blog.description
+        const title2 = title ? blog.title = title : blog.title 
+    } else {
+        return res.status(400).json({ success: false, message: "Blog not found" })
+    }
+      
+    
     res.status(200).json({ message: 'Blog updated' })
 })
 
